@@ -88,6 +88,13 @@ function portsFactory(phoenix, endpoint, options, topicProvider) {
     function websocketListen([topic, event]) {
       ensureChannelJoined(topic);
 
+      const alreadySubscribing = channels[topic]
+        .bindings
+        .some(obj => obj.event === event)
+
+      if (alreadySubscribing)
+        return;
+
       channels[topic].on(event, payload => {
         log('websocketReceive', topic, event, payload);
         ports.websocketReceive.send([topic, event, payload]);

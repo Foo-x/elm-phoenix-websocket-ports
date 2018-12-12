@@ -18,6 +18,7 @@ describe('phoenix-websocket-ports', () => {
     mockChannel.join = jest.fn();
     mockChannel.push = jest.fn();
     mockChannel.on = jest.fn();
+    mockChannel.bindings = [];
     mockSocket.connect = jest.fn();
     mockSocket.channel = jest.fn(() => mockChannel);
     mockPhoenix.Socket = jest.fn(() => mockSocket);
@@ -133,6 +134,20 @@ describe('phoenix-websocket-ports', () => {
 
     test('adds an event listener to the channel for the given event', () => {
       expect(mockChannel.on).toHaveBeenCalledWith('someEvent', expect.anything());
+    });
+
+    test('does not re-subscribe the event if it has already been subscribed', () => {
+      resetMocks();
+      mockChannel.bindings = [
+        {
+          event: "someEvent"
+        }
+      ];
+
+      websocketPorts(mockPhoenix, '/socket').register(mockPorts);
+      port(mockPorts.websocketListen)(['someTopic', 'someEvent']);
+
+      expect(mockChannel.on).not.toHaveBeenCalled();
     });
 
     test('the event listener sends a message to the websocketReceive port with the topic, event, and payload received', () => {
