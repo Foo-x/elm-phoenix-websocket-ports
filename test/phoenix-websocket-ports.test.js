@@ -1,4 +1,4 @@
-const websocketPorts = require('../src/phoenix-websocket-ports');
+const websocketPorts = require('../lib/js/phoenix-websocket-ports');
 
 function port(portFn) {
   return portFn.subscribe.mock.calls[0][0];
